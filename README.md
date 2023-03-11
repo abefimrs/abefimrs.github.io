@@ -1,2 +1,2 @@
-# Laravel certification guide sylabus and praciste
+# Laravel certification guide syllabus and praciste
 Laravel certification exam guide
