@@ -1,3 +1,2 @@
-# Laravel certification guide syllabus and practise
-Laravel certification exam guide
+# My github page
 theme:minimal
