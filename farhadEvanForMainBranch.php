@@ -1,0 +1,20 @@
+<?php
+for($x=1;$x<=5;$x++)
+{
+   // Inner loop to control the columns within each row
+   for ($y=1;$y<=$x;$y++)
+    {
+        // Print a star for each column
+	    echo "*";
+
+        // Add a space after each star, except for the last one in the row
+	    if($y < $x)
+		 {
+		   echo " ";
+		 }
+     }
+
+     // Move to the next line after printing each row
+     echo "\n";
+}
+?>
