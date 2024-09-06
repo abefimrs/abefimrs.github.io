@@ -4,38 +4,30 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - closed
 
 jobs:
-  update-project-on-push:
+  update-project:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Get the Commit Message
-        run: echo "Commit: ${{ github.event.head_commit.message }}"
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Move Project Card to "Push" on Push
+        if: github.event_name == 'push'
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+          -H "Accept: application/vnd.github.inertia-preview+json" \
+          https://api.github.com/repos/${{ github.repository }}/projects/columns/123456789/cards \
+          -d '{"note": "New code pushed to main branch"}'
       
-      - name: Move Card to 'Push' Column
+      - name: Move Project Card to "Merge" on Pull Request Merge
+        if: github.event.pull_request.merged == true
         run: |
-          card_id=$(gh api \
-            -H "Accept: application/vnd.github.inertia-preview+json" \
-            /repos/${{ github.repository }}/projects/columns/cards \
-            | jq '.[] | select(.note | contains("${{ github.event.head_commit.message }}")).id')
-
-          if [ -z "$card_id" ]; then
-            echo "No project card found for this commit message."
-          else
-            gh api \
-              -X POST \
-              -H "Authorization: token ${{ secrets.GH_PAT }}" \
-              /projects/columns/COLUMN_ID/cards/$card_id/moves \
-              -f position=top
-          fi
-
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-          
-    update-project-on-push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Move Card to 'Push' Column on Push
-        run: |
-          card_id=$(gh api \
-            -H "Accept: application/rest/
+          curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+          -H "Accept: application/vnd.github.inertia-preview+json" \
+          https://api.github.com/repos/${{ github.repository }}/projects/columns/987654321/cards \
+          -d '{"note": "Pull request #${{ github.event.pull_request.number }} has been merged"}'
