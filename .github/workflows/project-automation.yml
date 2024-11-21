@@ -1,0 +1,33 @@
+name: Update GitHub Project on Push and Merge
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  update-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Move Project Card to "Push" on Push
+        if: github.event_name == 'push'
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+          -H "Accept: application/vnd.github.inertia-preview+json" \
+          https://api.github.com/repos/${{ github.repository }}/projects/columns/123456789/cards \
+          -d '{"note": "New code pushed to main branch"}'
+      
+      - name: Move Project Card to "Merge" on Pull Request Merge
+        if: github.event.pull_request.merged == true
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+          -H "Accept: application/vnd.github.inertia-preview+json" \
+          https://api.github.com/repos/${{ github.repository }}/projects/columns/987654321/cards \
+          -d '{"note": "Pull request #${{ github.event.pull_request.number }} has been merged"}'
